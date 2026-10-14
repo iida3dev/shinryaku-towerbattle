@@ -54,6 +54,7 @@ THE SOFTWARE.
 </script>
 <script>
 window.addEventListener('error',event=>{
+  if(document.querySelector('#intro').dataset.gameReady==='true')return;
   // 拡張機能やブラウザが注入したスクリプトの詳細不明エラーではゲームを止めない。
   if(!event.error&&event.message==='Script error.')return;
   if(document.querySelector('#intro').hidden)return;
@@ -420,6 +421,8 @@ window.addEventListener('error',event=>{
     draw(now);requestAnimationFrame(frame);
   }
   reset(true);requestAnimationFrame(frame);
+  introEl.dataset.gameReady='true';
+  document.querySelectorAll('.startup-error').forEach(el=>{el.hidden=true;el.textContent=''});
 })();
 </script>
 </body></html>
