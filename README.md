@@ -6,3 +6,8 @@
 
 `index.html` とBGM 3曲で動きます。
 ゲーム開始時に選んだBGMだけを読み込みます。
+
+## ライセンス
+
+ゲーム本体と音源は [MIT License](LICENSE) で公開します。
+同梱の Matter.js のMITライセンス表示は `index.html` 内にあります。
