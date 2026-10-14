@@ -54,6 +54,9 @@ THE SOFTWARE.
 </script>
 <script>
 window.addEventListener('error',event=>{
+  // 拡張機能やブラウザが注入したスクリプトの詳細不明エラーではゲームを止めない。
+  if(!event.error&&event.message==='Script error.')return;
+  if(document.querySelector('#intro').hidden)return;
   const message=(event.error&&event.error.message)||event.message||'不明なエラー';
   document.querySelectorAll('.startup-error').forEach(el=>{el.hidden=false;el.textContent=`起動エラー: ${message}`});
   document.querySelector('#intro').hidden=false;
@@ -95,13 +98,15 @@ window.addEventListener('error',event=>{
         bgmAudio.loop=true;bgmAudio.volume=BGM_VOLUME;
       }
       bgmAudio.volume=BGM_VOLUME;
-      bgmAudio.currentTime=0;
+      // 読み込み前の音声でcurrentTimeを変更すると、端末によっては再生に進めない。
+      if(bgmAudio.readyState>0)bgmAudio.currentTime=0;
       bgmAudio.play().catch(error=>console.warn('BGMを再生できませんでした。',error));
     }catch(error){console.warn('BGMを準備できませんでした。',error)}
   }
   function stopBgm(){
     if(!bgmAudio)return;
-    bgmAudio.pause();bgmAudio.currentTime=0;
+    bgmAudio.pause();
+    if(bgmAudio.readyState>0)bgmAudio.currentTime=0;
   }
   function prepareGameAudio(){
     const AudioContextClass=window.AudioContext||window.webkitAudioContext;
@@ -346,6 +351,11 @@ window.addEventListener('error',event=>{
     prepareGameAudio();
     introEl.hidden=true;phase='aim';updateUi();
   }));
+  document.addEventListener('pointerdown',()=>{
+    if((phase==='aim'||phase==='fall')&&bgmAudio&&bgmAudio.paused){
+      bgmAudio.play().catch(error=>console.warn('BGMを再試行できませんでした。',error));
+    }
+  },{passive:true});
   function draw(now){
     ctx.fillStyle='#1b2638';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#233748';ctx.fillRect(0,0,W,H/2);ctx.fillStyle='#282b42';ctx.fillRect(0,H/2,W,H/2);
